@@ -34,13 +34,21 @@ export default function AdminCustomersPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-brand-dark">Customers</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl font-bold text-brand-dark">Customers</h1>
+        <Button onClick={() => {
+          navigator.clipboard.writeText(`${window.location.origin}/auth/register`);
+          alert("Registration link copied to clipboard! Send this to your customers so they can create a secure account.");
+        }} className="bg-[#F07878] hover:bg-[#d86a6a] border-0 text-white shadow-sm">
+          + Invite Customer
+        </Button>
+      </div>
       
       <div className="mb-6 max-w-md">
         <SearchBar value={search} onChange={setSearch} placeholder="Search customers..." />
       </div>
 
-      {loading ? <LoadingState text="Loading..." /> : customers.length === 0 ? <EmptyState message="No customers found." /> : (
+      {loading ? <LoadingState text="Loading..." /> : customers.length === 0 ? <EmptyState message="No customers have registered yet." /> : (
         <div className="bg-white border border-brand-border rounded-lg shadow-sm overflow-hidden">
           <Table>
             <thead>
