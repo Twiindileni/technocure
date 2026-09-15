@@ -1,0 +1,9 @@
+{
+  "short_name": "TechnoCure",
+  "name": "TechnoCure Center CC",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#F07878",
+  "background_color": "#ffffff"
+}
