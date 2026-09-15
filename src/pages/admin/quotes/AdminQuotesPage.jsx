@@ -131,11 +131,12 @@ export default function AdminQuotesPage() {
 
             <div className="border-t border-brand-border pt-4 space-y-4">
               <Select label="Status" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
-                <option value="new">New</option>
-                <option value="processing">Processing</option>
-                <option value="quoted">Quoted</option>
-                <option value="accepted">Accepted</option>
-                <option value="rejected">Rejected</option>
+                <option value="Pending">Pending</option>
+                <option value="Reviewing">Reviewing</option>
+                <option value="Quoted">Quoted</option>
+                <option value="Accepted">Accepted</option>
+                <option value="Declined">Declined</option>
+                <option value="Completed">Completed</option>
               </Select>
               
               <Textarea 
