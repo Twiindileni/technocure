@@ -8,7 +8,7 @@ export const quoteService = {
     const quote_number = "QT-" + year + "-" + String(seq).padStart(5, "0");
     const { data, error } = await supabase
       .from("quote_requests")
-      .insert({ ...payload, quote_number, status: "Pending" })
+      .insert({ ...payload, quote_number, status: "new" })
       .select().single();
     if (error) throw error;
     return data;

@@ -49,7 +49,8 @@ export default function AdminQuotesPage() {
       setSelectedQuote(null);
       fetchQuotes();
     } catch (err) {
-      toast.error('Failed to update quote');
+      toast.error('Failed to update quote: ' + (err.message || 'Unknown error'));
+      console.error(err);
     }
   };
 
@@ -130,8 +131,8 @@ export default function AdminQuotesPage() {
 
             <div className="border-t border-brand-border pt-4 space-y-4">
               <Select label="Status" value={newStatus} onChange={e => setNewStatus(e.target.value)}>
-                <option value="pending">Pending</option>
-                <option value="reviewing">Reviewing</option>
+                <option value="new">New</option>
+                <option value="processing">Processing</option>
                 <option value="quoted">Quoted</option>
                 <option value="accepted">Accepted</option>
                 <option value="rejected">Rejected</option>
