@@ -56,7 +56,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <Toaster position="top-right" toastOptions={{ duration: 4000 }} />
+          <Toaster position="top-right" toastOptions={{ duration: 4000 }} containerStyle={{ zIndex: 999999 }} />
           <Suspense fallback={<Fallback />}>
             <Routes>
 

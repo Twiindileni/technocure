@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Printer, Package, ShoppingCart } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Printer, ShoppingCart } from "lucide-react";
 import toast from "react-hot-toast";
 import { productService } from "../../services/productService";
 import { storageService } from "../../services/storageService";
@@ -23,26 +23,26 @@ function ProductCard({ printer }) {
   const { addItem } = useCart();
   const img = printer.printer_images?.[0];
   return (
-    <div className="card overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-      <div className="aspect-video bg-brand-bg flex items-center justify-center border-b border-brand-border relative">
+    <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden hover:bg-white/10 transition-colors flex flex-col">
+      <div className="aspect-video bg-white/5 flex items-center justify-center border-b border-white/10 relative">
         {img ? <img src={storageService.getPublicUrl('products', img.storage_path)} alt={printer.name} className="w-full h-full object-contain p-4" />
-             : <Printer className="w-16 h-16 text-gray-300" />}
-        {printer.category && <span className="absolute top-2 left-2 text-xs bg-brand-dark text-white px-2 py-0.5 rounded font-medium">{printer.category}</span>}
+             : <Printer className="w-16 h-16 text-gray-500" />}
+        {printer.category && <span className="absolute top-2 left-2 text-[10px] bg-[#F07878] text-white px-2 py-0.5 rounded font-bold uppercase tracking-wider">{printer.category}</span>}
       </div>
       <div className="p-5 flex flex-col flex-1">
-        <p className="text-xs text-brand-gray font-medium uppercase tracking-wide mb-1">{printer.brand}</p>
-        <h3 className="font-semibold text-brand-dark leading-tight mb-2 flex-1">{printer.name}</h3>
-        <p className="text-xs text-brand-gray mb-3 line-clamp-2">{printer.description}</p>
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-lg font-bold text-brand-primary">{formatCurrency(printer.price)}</p>
+        <p className="text-[10px] text-gray-500 font-bold uppercase tracking-widest mb-1">{printer.brand}</p>
+        <h3 className="font-medium text-gray-100 leading-tight mb-2 flex-1">{printer.name}</h3>
+        <p className="text-xs text-gray-400 mb-4 line-clamp-2 leading-relaxed">{printer.description}</p>
+        <div className="flex items-center justify-between mb-5">
+          <p className="text-lg font-semibold text-white">{formatCurrency(printer.price)}</p>
           <StockBadge qty={printer.stock_quantity} />
         </div>
         <div className="flex gap-2">
-          <Link to={"/shop/printers/" + printer.id} className="btn-secondary text-xs flex-1 text-center">View Details</Link>
+          <Link to={"/shop/printers/" + printer.id} className="text-center text-xs py-2 px-3 border border-white/20 rounded text-gray-300 hover:bg-white/10 transition-colors flex-1 font-medium">Details</Link>
           <button disabled={printer.stock_quantity === 0}
             onClick={() => { addItem({ id: printer.id, name: printer.name, price: printer.price, type: "printer" }); toast.success("Added to quote list"); }}
-            className="btn-primary text-xs flex-1 disabled:opacity-40 disabled:cursor-not-allowed">
-            <ShoppingCart className="w-3.5 h-3.5 mr-1" />Add to Quote
+            className="flex-1 bg-[#F07878] hover:bg-[#d86a6a] text-white text-xs font-medium py-2 px-3 rounded flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+            <ShoppingCart className="w-3.5 h-3.5 mr-1" />Add
           </button>
         </div>
       </div>
@@ -59,54 +59,64 @@ export default function PrintersPage() {
   const [page, setPage]         = useState(1);
 
   useEffect(() => {
-    setLoading(true);
-    productService.getPrinters({ category: category || undefined, search: search || undefined, page })
-      .then(r => { setPrinters(r.data); setTotal(r.total); })
-      .catch(() => toast.error("Failed to load printers"))
-      .finally(() => setLoading(false));
+    async function load() {
+      setLoading(true);
+      try {
+        const { data, count } = await productService.getPrinters({
+          category: category === "All" ? "" : category,
+          search,
+          page,
+          limit: 12
+        });
+        setPrinters(data);
+        setTotal(count);
+      } catch (err) {
+        toast.error("Failed to load printers");
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
   }, [category, search, page]);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-      <div className="mb-8">
-        <p className="text-sm text-brand-gray mb-1"><Link to="/" className="hover:text-brand-primary">Home</Link> / Shop / Printers</p>
-        <h1 className="text-2xl font-bold text-brand-dark">Printer Shop</h1>
-        <p className="text-brand-gray mt-1">Browse our range of HP, Canon, Brother, Epson and Kyocera printers.</p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-4 mb-8">
-        <div className="flex gap-2 flex-wrap">
-          {CATEGORIES.map(c => (
-            <button key={c} onClick={() => { setCategory(c === "All" ? "" : c); setPage(1); }}
-              className={"px-3 py-1.5 rounded-full text-xs font-medium border transition-colors " +
-                ((c === "All" && !category) || c === category
-                  ? "bg-brand-primary text-white border-brand-primary"
-                  : "bg-white text-brand-gray border-brand-border hover:border-brand-primary hover:text-brand-primary")}>
-              {c}
-            </button>
-          ))}
+    <div className="flex-1 w-full flex flex-col pt-8 pb-12 z-20 overflow-y-auto pr-4 scrollbar-hide">
+      
+      <div className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
+        <div>
+          <h1 className="text-3xl font-light tracking-wide text-gray-100 mb-2">Printers</h1>
+          <p className="text-gray-400 text-sm font-light">Explore our range of professional and home office printers.</p>
         </div>
-        <div className="sm:ml-auto">
-          <SearchBar value={search} onChange={v => { setSearch(v); setPage(1); }} placeholder="Search printers..." className="w-64" />
+        <div className="w-full sm:w-64">
+          <SearchBar onSearch={s => { setSearch(s); setPage(1); }} placeholder="Search printers..." />
         </div>
       </div>
 
-      {loading ? <LoadingState message="Loading printers..." /> : printers.length === 0 ? (
-        <EmptyState icon={<Printer className="w-12 h-12" />} title="No printers found" description="Try a different category or search term." />
+      <div className="mb-8 flex overflow-x-auto gap-2 pb-2 scrollbar-hide">
+        {CATEGORIES.map(c => (
+          <button key={c} onClick={() => { setCategory(c === "All" ? "" : c); setPage(1); }}
+            className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-colors border ${
+              (category === c || (!category && c === "All"))
+                ? "bg-[#F07878] text-white border-[#F07878]" 
+                : "bg-transparent text-gray-400 border-white/20 hover:border-[#F07878] hover:text-[#F07878]"
+            }`}>
+            {c}
+          </button>
+        ))}
+      </div>
+
+      {loading ? (
+        <LoadingState message="Loading printers..." />
+      ) : printers.length === 0 ? (
+        <EmptyState title="No printers found" message="Try adjusting your search or category filter." />
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-10">
             {printers.map(p => <ProductCard key={p.id} printer={p} />)}
           </div>
-          <Pagination page={page} total={total} pageSize={12} onChange={setPage} />
+          <Pagination page={page} total={total} limit={12} onChange={setPage} />
         </>
       )}
-
-      <div className="mt-12 bg-brand-primary-light rounded-xl p-7 text-center border border-brand-primary/20">
-        <h3 className="font-bold text-brand-dark mb-2">Can't find what you're looking for?</h3>
-        <p className="text-brand-gray text-sm mb-4">Request a custom quote for any printer or configuration.</p>
-        <Link to="/quotes/new" className="btn-primary">Request a Quote</Link>
-      </div>
     </div>
   );
 }
