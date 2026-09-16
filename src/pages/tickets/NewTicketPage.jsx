@@ -5,6 +5,7 @@ import { CheckCircle, Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { ticketService } from "../../services/ticketService";
+import { supabase } from "../../lib/supabase";
 import { Input, Textarea, Select } from "../../components/ui/Form";
 import { Button } from "../../components/ui/Button";
 import { StatusBadge } from "../../components/ui/Badge";
@@ -32,6 +33,17 @@ export default function NewTicketPage() {
         is_completely_unusable: data.is_completely_unusable === "yes",
       };
       const ticket = await ticketService.createTicket(payload);
+      
+      // Manually trigger the edge function to send the email
+      // This avoids the Supabase pg_net database webhook errors
+      try {
+        await supabase.functions.invoke('send-ticket-email', {
+          body: { record: ticket }
+        });
+      } catch (emailErr) {
+        console.error("Failed to send email notification", emailErr);
+      }
+
       setSubmittedTicket(ticket);
       toast.success("Service ticket submitted successfully!");
     } catch (err) {
